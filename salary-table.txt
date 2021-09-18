@@ -1,0 +1,6 @@
+shifts=morning,noon,night
+weekend_days=SA,SU
+lower=morning-00:01,noon-09:01,night-18:01
+upper=morning-09:00,noon-18:00,night-24:00
+weekday_rate=morning-25,noon-15,night-20
+weekend_rate=morning-30,noon-20,night-25
