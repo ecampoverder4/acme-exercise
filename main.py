@@ -1,5 +1,3 @@
-print('Hola mundo')
-
 employees = {}
 
 def uploadSalaryTable(file_name):
@@ -90,9 +88,9 @@ def timeConversion(starting_hours, starting_minutes, ending_hours, ending_minute
 def calculatePayment(starting_hours, starting_minutes, ending_hours, ending_minutes, rate):
     
     starting_time, ending_time = timeConversion(starting_hours, starting_minutes, ending_hours, ending_minutes)
-
     total_time_hours = ending_time - starting_time
     total_payment = total_time_hours * rate
+
     return total_payment
 
 def contiguousShifts(starting_hours, starting_minutes, ending_hours, ending_minutes, upper_limits, starting_shift_name, rate, new_rate):
@@ -115,23 +113,20 @@ employees = uploadEmployeesData('employee-data.txt')
 
 
 for emp in employees:
+    total_payment = 0
 
     for hourspday in employees[emp]:
         found_flag = False
         found_start_flag = False
         found_end_flag = False
-        starting_shift = ''
-        end_shift = ''
         day = hourspday[:2]
         time_frame = hourspday[2:]
         lower_limit, upper_limit = time_frame.split('-') 
         
         if day in weekend_days:
-            print("Tarifa especial")
             ratepshift = weekend_hour_rate
 
         else:
-            print("Tarifa estándar")
             ratepshift = weekday_hour_rate
 
         for starting_point in lower_limits:
@@ -148,19 +143,12 @@ for emp in employees:
 
                     lower_hour = lower_limits[starting_point].split(':')[0]
                     upper_hour = upper_limits[ending_point].split(':')[0]
-                    starting_hours = int(starting_hours)
-                    ending_hours = int(ending_hours)
-
-                    lower_hour = int(lower_hour)
-                    upper_hour = int(upper_hour)
                     
-                    if starting_hours >= lower_hour and starting_hours <= upper_hour:
+                    if int(starting_hours) >= int(lower_hour) and int(starting_hours) <= int(upper_hour):
                         starting_shift_name = starting_point
-                        #rate = ratepshift[starting_point]
-                        #print("La tasa por hora es", rate)
                         found_start_flag = True
                     
-                    if ending_hours >= lower_hour and ending_hours <= upper_hour:
+                    if int(ending_hours) >= int(lower_hour) and int(ending_hours) <= int(upper_hour):
                         ending_shift_name = ending_point
                         found_end_flag = True
 
@@ -169,9 +157,7 @@ for emp in employees:
         starting_hours, starting_minutes = lower_limit.split(':')
         ending_hours, ending_minutes = upper_limit.split(':')
 
-        if starting_shift_name == ending_shift_name:
-
-            print("Se encuentra en el mismo turno")   
+        if starting_shift_name == ending_shift_name:  
             
             upper_hour, upper_minutes = upper_limits[ending_shift_name].split(':')
             rate = float(ratepshift[starting_shift_name])
@@ -179,36 +165,29 @@ for emp in employees:
             if ending_hours == '00':
                 ending_hours = replaceMidnight(ending_hours)
 
-            if float(ending_hours) < float(upper_hour):
-                print()
-                total_payment = calculatePayment(starting_hours, starting_minutes, ending_hours, ending_minutes, rate)
-                print("El total a pagar es", total_payment)
+            if int(ending_hours) < int(upper_hour):
+                total_payment_shift = calculatePayment(starting_hours, starting_minutes, ending_hours, ending_minutes, rate)
 
             else:
-                print()
-                #Hora de límite superior
-                if float(ending_minutes) > 0:
-                    print()
+
+                if int(ending_minutes) > 0:
+
                     for shift in lower_limits:
                         hours = lower_limits[shift].split(':')[0]
                         
                         if hours == '00':
                             hours = replaceMidnight(hours)
 
-                        if float(hours) == float(ending_hours):
+                        if int(hours) == int(ending_hours):
                             new_rate = float(ratepshift[shift])
 
-                    total_payment = contiguousShifts(starting_hours, starting_minutes, ending_hours, ending_minutes, upper_limits, starting_shift_name, rate, new_rate)
-                    print("El total a pagar es", total_payment)
+                    total_payment_shift = contiguousShifts(starting_hours, starting_minutes, ending_hours, ending_minutes, upper_limits, starting_shift_name, rate, new_rate)
 
                 else:
 
-                    total_payment = calculatePayment(starting_hours, starting_minutes, ending_hours, ending_minutes, rate)
-                    print("El total a pagar es", total_payment)
+                    total_payment_shift = calculatePayment(starting_hours, starting_minutes, ending_hours, ending_minutes, rate)
 
         else:
-            #Turnos que cruzan umbrales
-            print()
 
             lower_limit_hours, lower_limit_minutes = upper_limits[starting_shift_name].split(':')
             upper_limit_hours, upper_limit_minutes = lower_limits[ending_shift_name].split(':')
@@ -217,35 +196,21 @@ for emp in employees:
                 upper_limit_hours = replaceMidnight(upper_limit_hours)
 
             starting_time, ending_time = timeConversion(lower_limit_hours, lower_limit_minutes, upper_limit_hours, upper_limit_minutes)
-
             one_minute = float(1/60)
 
             if round(ending_time - starting_time, 3) == round(one_minute, 3):
-                print("Son turnos contiguos")
+
                 rate = float(ratepshift[starting_shift_name])
                 new_rate = float(ratepshift[ending_shift_name])
 
-                total_payment = contiguousShifts(starting_hours, starting_minutes, ending_hours, ending_minutes, upper_limits, starting_shift_name, rate, new_rate)
-                print("El total a pagar es", total_payment)
+                total_payment_shift = contiguousShifts(starting_hours, starting_minutes, ending_hours, ending_minutes, upper_limits, starting_shift_name, rate, new_rate)
 
             else:
-                print("No son turnos contiguos")
+                print('Conflicting shifts')
             
-    #Retirar sentencias de breaks   
+        total_payment = total_payment + total_payment_shift
 
-        break
+    print('The amount to pay ' + emp + ' is:', total_payment)
 
+    #Retirar sentencia de break
     break
-
-
-
-print(employees)
-print(shifts)
-print(weekend_days)
-print(lower_limits)
-print(upper_limits)
-print(weekday_hour_rate)
-print(weekend_hour_rate)
-
-
-
