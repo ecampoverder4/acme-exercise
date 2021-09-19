@@ -2,7 +2,6 @@ employees = {}
 
 def uploadSalaryTable(file_name):
 
-    shifts = []
     weekend_days = []
     lower_limits = {}
     upper_limits = {}
@@ -16,10 +15,7 @@ def uploadSalaryTable(file_name):
             key_name, values = i.split('=')
             values = values.replace('\n','')
 
-            if key_name == 'shifts':
-                shifts = values.split(',')
-
-            elif key_name == 'weekend_days':
+            if key_name == 'weekend_days':
                 weekend_days = values.split(',')
 
             elif key_name == 'lower':
@@ -51,7 +47,7 @@ def uploadSalaryTable(file_name):
                     weekend_hour_rate[shift] = int(rate)
 
 
-    return shifts, weekend_days, lower_limits, upper_limits, weekday_hour_rate, weekend_hour_rate
+    return weekend_days, lower_limits, upper_limits, weekday_hour_rate, weekend_hour_rate
 
 def uploadEmployeesData(file_name):
 
@@ -97,20 +93,14 @@ def contiguousShifts(starting_hours, starting_minutes, ending_hours, ending_minu
 
     threshold_hours, threshold_minutes = upper_limits[starting_shift_name].split(':')
     aux_payment = calculatePayment(starting_hours, starting_minutes, threshold_hours, threshold_minutes, rate)
-
-    if starting_shift_name == 'night':
-        threshold_hours = '00'
-
     new_payment = calculatePayment(threshold_hours, threshold_minutes, ending_hours, ending_minutes, new_rate)
     total_payment = aux_payment + new_payment
 
     return total_payment
 
-
-shifts, weekend_days, lower_limits, upper_limits, weekday_hour_rate, weekend_hour_rate = uploadSalaryTable('salary-table.txt')
+weekend_days, lower_limits, upper_limits, weekday_hour_rate, weekend_hour_rate = uploadSalaryTable('salary-table.txt')
 
 employees = uploadEmployeesData('employee-data.txt')
-
 
 for emp in employees:
     total_payment = 0
@@ -204,13 +194,7 @@ for emp in employees:
                 new_rate = float(ratepshift[ending_shift_name])
 
                 total_payment_shift = contiguousShifts(starting_hours, starting_minutes, ending_hours, ending_minutes, upper_limits, starting_shift_name, rate, new_rate)
-
-            else:
-                print('Conflicting shifts')
             
         total_payment = total_payment + total_payment_shift
 
     print('The amount to pay ' + emp + ' is:', total_payment)
-
-    #Retirar sentencia de break
-    break
