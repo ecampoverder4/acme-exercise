@@ -1,4 +1,3 @@
-shifts=morning,noon,night
 weekend_days=SA,SU
 lower=morning-00:01,noon-09:01,night-18:01
 upper=morning-09:00,noon-18:00,night-24:00
